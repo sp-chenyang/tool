@@ -5,7 +5,7 @@
         <option value="192.168.2.180">192.168.2.180</option>
         <option value="192.168.2.181">192.168.2.181</option>
     </select>
-    <input name="uname" value="zhaojinpeng" />
+    <input name="uname" value="zhaojinpeng@spolo.org" />
     <input type="submit" />
     <input type="button" onclick="window.location.href='./role.php'" value="Reset" />
 </form>

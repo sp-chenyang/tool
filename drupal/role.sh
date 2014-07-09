@@ -12,7 +12,7 @@ rcmd()
 }
 
 XCMD="cd /var/www/html/web"
-XCMD="$XCMD; drush user-create $NAME --mail=\"$NAME@spolo.org\" --password=\"sp12345678\""
+XCMD="$XCMD; drush user-create $NAME --mail=\"$NAME\" --password=\"sp12345678\""
 XCMD="$XCMD; drush user-add-role \"administrator\" $NAME"
 XCMD="$XCMD; drush user-information $NAME"
 
