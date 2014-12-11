@@ -36,7 +36,7 @@ def walk_depth(root, max_depth):
 # input : "abc.jpg"
 # output : ".jpg"
 def getext(filename):
-    return os.path.splitext(filename)[1]
+    return os.path.splitext(filename)[1].lower()
 
 def preprocessing(filename):
     # convert webp to png.
