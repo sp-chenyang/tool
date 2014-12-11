@@ -8,7 +8,6 @@ import os, os.path
 import logging
 from PIL import Image
 
-EXT = ['.js', '.css', '.php', '.do', '.aw' ]
 FILENAME2 = ['item', 'list']
 FILENAME = [ 'saved_resource' , 'counter3', 'counter6' , 'recommend', 'sug', 'summarydata']
 HTMFILENAME = [ 'recommend', 'fetchDc', 'getMallBar', 'initItemDetail' ,
@@ -22,15 +21,28 @@ def xlog(str):
     logger = logging.getLogger(__name__)
     logger.info( str )
 
-#fixme: chinese support
+#http://python-forum.org/viewtopic.php?f=6&t=6352
+def walk_depth(root, max_depth):
+    # some initial setup for getting the depth
+    root = os.path.normpath(root)
+    depth_offset = root.count(os.sep) - 1
+
+    for root, dirs, files in os.walk(root, topdown=True):
+        # get current depth to determine if we need to stop
+        depth = root.count(os.sep) - depth_offset
+        yield root, dirs, files, depth
+        if depth >= max_depth:
+            # modify dirs so we don't go any deeper
+            dirs[:] = []
+
+
 def checkfilesize(filepath):
-    return os.path.getsize(filepath) == 0
+    return 
 
 def checkexplictfilename(filename):
     return filename in FILENAME2
 
-def checkext(filename):
-    return os.path.splitext(filename)[1] in EXT
+
 
 def checkfilename(filename):
     for f in FILENAME:
@@ -54,6 +66,23 @@ def checkimage(filename, filepath):
     if im.size[1] < 100:
         return True
     return False
+
+def is_good_pic(filename):
+    # These file type is not pic.
+    if os.path.splitext(filename)[1] in ['.js', '.css', '.php', '.do', '.aw', 'html', 'htm' ]:
+        return False
+
+    #fixme: chinese support
+    # file size must not zero
+    #if os.path.getsize(filepath) == 0:
+    #    return False
+    
+    if checkfilename(f) or checkhtmfilename(f) or checkexplictfilename(f):
+        xlog( 'delete upon filename' )
+        return False
+    if checkimage(f, fullpath): 
+        xlog( 'delete upon image resolution' )
+        return False
 
 def counter():
     global COUNT
@@ -99,24 +128,24 @@ def main():
     DIR = options.xdir
     
     initlog(DIR + os.path.sep + 'del.log')
-    xlog( DIR )
+    xlog( "processing root dir is : " + DIR )
     
-    for root, _, files in os.walk(DIR):
+    # loop depth must be 2
+    #for root, _, files in os.walk(DIR):
+    for root, _, files, depth in walk_depth(DIR, 2):
+        if depth is 1:
+            continue
+        
+        # loop every files in depth 2.
         for f in files:
             fullpath = os.path.join(root, f)
-            xlog(fullpath)
-            #if checkext(f) or checkfilename(f) or checkhtmfilename(f) or checkexplictfilename(f) or checkfilesize(fullpath):
-            if checkext(f) or checkfilename(f) or checkhtmfilename(f) or checkexplictfilename(f):
-                xlog( 'delete upon filename' )
-                counter()
-                os.remove(fullpath)
+            xlog("processing files in depth2 dir : " + fullpath)
+            
+            if is_good_pic(f):
                 continue
-            if checkimage(f, fullpath): 
-                xlog( 'delete upon image resolution' )
+            else:
                 counter()
                 os.remove(fullpath)
-            #if os.path.getsize(fullpath) < 200 * 1024:
-            #    os.remove(fullpath)
 
     xlog("files count : " + str(COUNT))
     xlog("= END =")
