@@ -32,16 +32,22 @@ def walk_depth(root, max_depth):
             # modify dirs so we don't go any deeper
             dirs[:] = []
 
-# get file name extension
-# input : "abc.jpg"
+# get file path extension
+# input : "c:\\a\\b\\abc.jpg"
 # output : ".jpg"
-def getext(filename):
+def getpathext(filename):
     return os.path.splitext(filename)[1].lower()
 
-def preprocessing(filename):
+# get file path root
+# input : "c:\\a\\b\\abc.jpg"
+# ouput : "c:\\a\\b\\abc"
+def getpathroot(filename):
+    return os.path.splitext(filename)[1]
+
+def preprocessing(filename, fullpath):
     # convert webp to png.
-    if getext(filename) == ".webp":
-        cmd = DWEBP + ' test.webp -o test.png'
+    if getpathext(filename) == ".webp":
+        cmd = DWEBP + ' ' + getpathroot(fullpath) + '.webp -o ' + getpathroot(fullpath) + '.png'
         if os.system(cmd) != 0:
             xlog("Something is wrong when changing webp format : " + filename)
             sys.exit(1)
@@ -49,7 +55,7 @@ def preprocessing(filename):
 
 def is_good_pic(filename, fullpath):
     # file type must image
-    if getext(filename) not in ['.jpg', '.jpeg', '.png', '.gif', '.bmp']:
+    if getpathext(filename) not in ['.jpg', '.jpeg', '.png', '.gif', '.bmp']:
         return False
     
     # file size must not zero
@@ -127,7 +133,7 @@ def main():
             fullpath = os.path.join(root, f)
             xlog("processing files in depth2 dir : " + fullpath)
             
-            preprocessing(f)
+            preprocessing(f, fullpath)
             
             if is_good_pic(f, fullpath):
                 continue
