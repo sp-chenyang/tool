@@ -62,9 +62,9 @@ def is_good_pic(filename, fullpath):
     except:
         xlog("file is not a image : " + fullpath)
     else:
-        if im.size[0] < 150:
+        if im.size[0] < 200:
             return False
-        if im.size[1] < 150:
+        if im.size[1] < 200:
             return False
     
     # go though test above, this file is a good image
