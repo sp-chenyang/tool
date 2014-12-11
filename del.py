@@ -7,15 +7,12 @@ from optparse import OptionParser
 import os, os.path
 import logging
 from PIL import Image
+import sys
 
-FILENAME2 = ['item', 'list']
-FILENAME = [ 'saved_resource' , 'counter3', 'counter6' , 'recommend', 'sug', 'summarydata']
-HTMFILENAME = [ 'recommend', 'fetchDc', 'getMallBar', 'initItemDetail' ,
-                'list_detail_rate' , 'list_dsr_info' , 'listTagClouds' , 'listTryReport',
-                'seller_info', 'dealRecords', 'link' , 'activity' , 'asyn' , 'ifq',
-                'validateDc', 'item_imgs' , 'promotionNew' , 'sib', 'login',
-                'stp-1_1_0' ]
 COUNT = 0
+
+# Decompress a WebP file to an image file, from google.
+DWEBP = "E:\\opt\\libwebp-0.4.2-windows-x64\\bin\\dwebp.exe"
 
 def xlog(str):
     logger = logging.getLogger(__name__)
@@ -35,54 +32,43 @@ def walk_depth(root, max_depth):
             # modify dirs so we don't go any deeper
             dirs[:] = []
 
+# get file name extension
+# input : "abc.jpg"
+# output : ".jpg"
+def getext(filename):
+    return os.path.splitext(filename)[1]
 
-def checkfilesize(filepath):
-    return 
+def preprocessing(filename):
+    # convert webp to png.
+    if getext(filename) == ".webp":
+        cmd = DWEBP + ' test.webp -o test.png'
+        if os.system(cmd) != 0:
+            xlog("Something is wrong when changing webp format : " + filename)
+            sys.exit(1)
+        xlog("File is webp format, success to change format to png : " + filename)
 
-def checkexplictfilename(filename):
-    return filename in FILENAME2
-
-
-
-def checkfilename(filename):
-    for f in FILENAME:
-        if f in filename :
-            return True
-    return False
-
-def checkhtmfilename(filename):
-    if os.path.splitext(filename)[1] == '.htm':
-        for f in HTMFILENAME:
-            if f in filename:
-                return True
-    return False
-
-def checkimage(filename, filepath):
-    if os.path.splitext(filename)[1] not in ['.jpg', '.jpeg', '.png', '.gif'] :
+def is_good_pic(filename, fullpath):
+    # file type must image
+    if getext(filename) not in ['.jpg', '.jpeg', '.png', '.gif', '.bmp']:
         return False
-    im = Image.open(filepath)
-    if im.size[0] < 100:
-        return True
-    if im.size[1] < 100:
-        return True
-    return False
-
-def is_good_pic(filename):
-    # These file type is not pic.
-    if os.path.splitext(filename)[1] in ['.js', '.css', '.php', '.do', '.aw', 'html', 'htm' ]:
-        return False
-
-    #fixme: chinese support
-    # file size must not zero
-    #if os.path.getsize(filepath) == 0:
-    #    return False
     
-    if checkfilename(f) or checkhtmfilename(f) or checkexplictfilename(f):
-        xlog( 'delete upon filename' )
+    # file size must not zero
+    if os.path.getsize(fullpath) == 0:
         return False
-    if checkimage(f, fullpath): 
-        xlog( 'delete upon image resolution' )
-        return False
+    
+    try:
+        #@fixme: file type must be a image.
+        im = Image.open(fullpath)
+    except:
+        xlog("file is not a image : " + fullpath)
+    else:
+        if im.size[0] < 150:
+            return False
+        if im.size[1] < 150:
+            return False
+    
+    # go though test above, this file is a good image
+    return True
 
 def counter():
     global COUNT
@@ -133,7 +119,7 @@ def main():
     # loop depth must be 2
     #for root, _, files in os.walk(DIR):
     for root, _, files, depth in walk_depth(DIR, 2):
-        if depth is 1:
+        if depth == 1:
             continue
         
         # loop every files in depth 2.
@@ -141,13 +127,16 @@ def main():
             fullpath = os.path.join(root, f)
             xlog("processing files in depth2 dir : " + fullpath)
             
-            if is_good_pic(f):
+            preprocessing(f)
+            
+            if is_good_pic(f, fullpath):
                 continue
             else:
                 counter()
+                xlog("remove file : " + f)
                 os.remove(fullpath)
 
-    xlog("files count : " + str(COUNT))
+    xlog("removed files count : " + str(COUNT))
     xlog("= END =")
 
 if __name__ == "__main__":
