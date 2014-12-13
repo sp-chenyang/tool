@@ -8,6 +8,7 @@ import os, os.path
 import logging
 from PIL import Image
 import sys
+import shutil
 
 COUNT = 0
 
@@ -42,7 +43,16 @@ def getpathext(filename):
 # input : "c:\\a\\b\\abc.jpg"
 # ouput : "c:\\a\\b\\abc"
 def getpathroot(filename):
-    return os.path.splitext(filename)[1]
+    return os.path.splitext(filename)[0]
+
+def is_image(fullpath):
+    try:
+        im = Image.open(fullpath)
+    except:
+        xlog("file is not a image : " + fullpath)
+        return False
+    else:
+        return im.format.lower()
 
 def preprocessing(filename, fullpath):
     # convert webp to png.
@@ -52,6 +62,14 @@ def preprocessing(filename, fullpath):
             xlog("Something is wrong when changing webp format : " + filename)
             sys.exit(1)
         xlog("File is webp format, success to change format to png : " + filename)
+    
+    # file w/o extension, check for image format
+    if getpathext(filename) == '':
+        fileformat = is_image(fullpath)
+        if fileformat:
+            newpath = getpathroot(fullpath) + "." + fileformat
+            xlog("[preprocessing] give file a extension, from " + fullpath + " to " + newpath)
+            shutil.copy2(fullpath, newpath)
 
 def is_good_pic(filename, fullpath):
     # file type must image
