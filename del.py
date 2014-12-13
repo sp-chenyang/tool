@@ -63,7 +63,7 @@ def preprocessing(filename, fullpath):
         cmd = DWEBP + ' ' + getpathroot(fullpath) + '.webp -o ' + getpathroot(fullpath) + '.png'
         if os.system(cmd) != 0:
             xlog("Something is wrong when changing webp format : " + filename)
-            sys.exit(1)
+            sys.exit(2)
         xlog("File is webp format, success to change format to png : " + filename)
     
     # file w/o extension, check for image format
@@ -173,7 +173,11 @@ def main():
             continue
         newpath = os.path.join(DIR, getpathroot(file) + "_files", READMETXT)
         xlog("[main] move html to txt, and into sub dir : from %s to %s" % (fullpath, newpath))
-        shutil.move(fullpath, newpath)
+        try:
+            shutil.move(fullpath, newpath)
+        except:
+            print(fullpath)
+            sys.exit(3)
         
         
     xlog("removed files count : " + str(COUNT))
