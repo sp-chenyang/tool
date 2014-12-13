@@ -2,6 +2,7 @@
 
 # DEP:
 # 1. PIL
+# 2. libwebp
 
 from optparse import OptionParser
 import os, os.path
