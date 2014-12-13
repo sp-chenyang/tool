@@ -15,6 +15,9 @@ COUNT = 0
 # Decompress a WebP file to an image file, from google.
 DWEBP = "E:\\opt\\libwebp-0.4.2-windows-x64\\bin\\dwebp.exe"
 
+# store some info in readme.txt
+READMETXT = "readme.txt"
+
 def xlog(str):
     logger = logging.getLogger(__name__)
     logger.info( str )
@@ -155,11 +158,24 @@ def main():
             
             if is_good_pic(f, fullpath):
                 continue
+            elif f == READMETXT:
+                # store some info in this file.
+                continue
             else:
                 counter()
                 xlog("remove file : " + f)
                 os.remove(fullpath)
 
+    # backup html page
+    for file in os.listdir(DIR):
+        fullpath = os.path.join(DIR, file)
+        if getpathext(file) != ".html" and getpathext(file) != ".htm":
+            continue
+        newpath = os.path.join(DIR, getpathroot(file) + "_files", READMETXT)
+        xlog("[main] move html to txt, and into sub dir : from %s to %s" % (fullpath, newpath))
+        shutil.move(fullpath, newpath)
+        
+        
     xlog("removed files count : " + str(COUNT))
     xlog("= END =")
 
