@@ -178,6 +178,7 @@ def main():
             shutil.move(fullpath, newpath)
         except:
             print(fullpath)
+            print("error code 3")
             sys.exit(3)
         
         
