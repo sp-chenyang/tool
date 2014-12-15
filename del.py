@@ -63,7 +63,9 @@ def preprocessing(filename, fullpath):
     if getpathext(filename) == ".webp":
         cmd = DWEBP + ' ' + getpathroot(fullpath) + '.webp -o ' + getpathroot(fullpath) + '.png'
         if os.system(cmd) != 0:
-            xlog("Something is wrong when changing webp format : " + filename)
+            print("Something is wrong when changing webp format : " + filename)
+            print("cmd line : %s" % cmd)
+            print("error code 2")
             sys.exit(2)
         xlog("File is webp format, success to change format to png : " + filename)
     
