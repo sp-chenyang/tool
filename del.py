@@ -23,6 +23,15 @@ def xlog(str):
     logger = logging.getLogger(__name__)
     logger.info( str )
 
+def xfail(code):
+    err = []
+    prefix = "error code %s : " % code
+    err.append('cmd line option `--dir` must be given. see error.log for more detail")') #1
+    err.append('...') #2
+    err.append('move html to txt, and into sub dir. see error.log for more detail') #3
+    print(prefix + err[code])
+    sys.exit(code)
+
 #http://python-forum.org/viewtopic.php?f=6&t=6352
 def walk_depth(root, max_depth):
     # some initial setup for getting the depth
@@ -140,7 +149,7 @@ def initcmd():
 
     if options.xdir is None:
         parser.error("`--dir` must be given")
-        exit(1)
+        xfail(1)
     return options
 
 def main():
@@ -186,9 +195,7 @@ def main():
         try:
             shutil.move(fullpath, newpath)
         except:
-            print(fullpath)
-            print("error code 3")
-            sys.exit(3)
+            xfail(3)
         
         
     xlog("removed files count : " + str(COUNT))
