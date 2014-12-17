@@ -6,6 +6,8 @@ from daemon import Daemon
 import datetime
 import subprocess
 
+# ping log http://stackoverflow.com/questions/18860271/logging-ping-successes-and-failures-in-linux
+
 class MyDaemon(Daemon):
     def run(self):
         while True:
