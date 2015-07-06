@@ -29,7 +29,7 @@ do {
         break;
     }
 
-    $shell = "/public/www/tool/drupal/role.sh  $ip $uname 2>&1";
+    $shell = "./role.sh  $ip $uname 2>&1";
     echo $shell;
 
     $result = shell_exec($shell);
